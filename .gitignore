@@ -1,2 +1,3 @@
 .idea
+cmd/admhcli/admhcli*
 cmd/admhcli/work

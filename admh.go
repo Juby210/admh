@@ -50,7 +50,7 @@ func DownloadAndExtractAPK(packageName string, version int, workDir, output stri
 			return err
 		}
 		defer resp.Body.Close()
-		os.MkdirAll(apkDir, 0644)
+		os.MkdirAll(apkDir, 755)
 		file, err := os.Create(apkFile)
 		if err != nil {
 			return err
@@ -128,7 +128,7 @@ func DownloadJADX(workDir, jadxPath string) (err error) {
 	}
 
 	jadxDir := filepath.Join(workDir, "jadx")
-	os.MkdirAll(jadxDir, 0644)
+	os.MkdirAll(jadxDir, 755)
 	for _, f := range zipReader.File {
 		fPath := filepath.Join(jadxDir, f.Name)
 		if f.FileInfo().IsDir() {
