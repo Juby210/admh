@@ -31,7 +31,7 @@ var (
 	logger = log.New(os.Stdout, "[admh] ", log.LstdFlags)
 )
 
-func DownloadAndExtractAPK(packageName string, version int, workDir, output string, resolveDownloadUrl DownloadUrlResolver) error {
+func DownloadAndExtractAPK(packageName string, version int, workDir, output string, jadxFlags *JadxFlags, resolveDownloadUrl DownloadUrlResolver) error {
 	versionStr := strconv.Itoa(version)
 	apkDir := filepath.Join(workDir, "apk")
 	apkFile := filepath.Join(apkDir, packageName+"-"+versionStr+".apk")
@@ -59,11 +59,11 @@ func DownloadAndExtractAPK(packageName string, version int, workDir, output stri
 		file.Close()
 	}
 
-	return ExtractAPK(apkFile, workDir, output)
+	return ExtractAPK(apkFile, workDir, output, jadxFlags)
 }
 
 //goland:noinspection GoBoolExpressions
-func ExtractAPK(apkFile, workDir, output string) error {
+func ExtractAPK(apkFile, workDir, output string, jadxFlags *JadxFlags) error {
 	jadxPath := filepath.Join(workDir, "jadx", "bin", "jadx")
 	DownloadJADX(workDir, jadxPath)
 
@@ -76,17 +76,12 @@ func ExtractAPK(apkFile, workDir, output string) error {
 	}
 	cmd := exec.Command(
 		jadxPath,
-		"-e",
-		"--show-bad-code",
-		"--no-debug-info",
-		"--no-inline-anonymous",
-		"--no-inline-methods",
-		"--no-generate-kotlin-metadata",
-		"--no-replace-consts",
-		"--respect-bytecode-access-modifiers",
-		"--fs-case-sensitive",
-		"-d", output,
-		apkFile,
+		append(
+			jadxFlags.GetRawFlags(),
+			"--fs-case-sensitive",
+			"-d", output,
+			apkFile,
+		)...,
 	)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

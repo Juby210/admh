@@ -43,11 +43,12 @@ func main() {
 	if out == "" {
 		out = filepath.Join(*workDir, "out")
 	}
+	jadxFlags := admh.GetDefaultJadxFlags()
 	var err error
 	if apkFileMode {
-		err = admh.ExtractAPK(*apkFile, *workDir, out)
+		err = admh.ExtractAPK(*apkFile, *workDir, out, jadxFlags)
 	} else {
-		err = admh.DownloadAndExtractAPK(*packageName, *version, *workDir, out, aptoide.DownloadUrlResolver)
+		err = admh.DownloadAndExtractAPK(*packageName, *version, *workDir, out, jadxFlags, aptoide.DownloadUrlResolver)
 	}
 	if err != nil {
 		log.Fatal(err)
