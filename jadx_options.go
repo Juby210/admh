@@ -9,7 +9,7 @@
 
 package admh
 
-type JadxFlags struct {
+type JadxOptions struct {
 	GradleProject,
 	ShowBadCode,
 	DebugInfo,
@@ -18,10 +18,12 @@ type JadxFlags struct {
 	GenerateKotlinMetadata,
 	ReplaceConsts,
 	RespectBytecodeAccessModifiers bool
+
+	JadxRelease string
 }
 
-func GetDefaultJadxFlags() *JadxFlags {
-	return &JadxFlags{
+func GetDefaultJadxOptions() *JadxOptions {
+	return &JadxOptions{
 		GradleProject:                  true,
 		ShowBadCode:                    true,
 		DebugInfo:                      false,
@@ -30,32 +32,34 @@ func GetDefaultJadxFlags() *JadxFlags {
 		GenerateKotlinMetadata:         false,
 		ReplaceConsts:                  true,
 		RespectBytecodeAccessModifiers: true,
+
+		JadxRelease: "https://github.com/Aliucord/jadx/releases/download/v1.3.2.311-fork1/jadx-1.3.2.311-fork1.zip",
 	}
 }
 
-func (flags *JadxFlags) GetRawFlags() (raw []string) {
-	if flags.GradleProject {
+func (options *JadxOptions) GetRawFlags() (raw []string) {
+	if options.GradleProject {
 		raw = append(raw, "-e")
 	}
-	if flags.ShowBadCode {
+	if options.ShowBadCode {
 		raw = append(raw, "--show-bad-code")
 	}
-	if !flags.DebugInfo {
+	if !options.DebugInfo {
 		raw = append(raw, "--no-debug-info")
 	}
-	if !flags.InlineAnonymous {
+	if !options.InlineAnonymous {
 		raw = append(raw, "--no-inline-anonymous")
 	}
-	if !flags.InlineMethods {
+	if !options.InlineMethods {
 		raw = append(raw, "--no-inline-methods")
 	}
-	if !flags.GenerateKotlinMetadata {
+	if !options.GenerateKotlinMetadata {
 		raw = append(raw, "--no-generate-kotlin-metadata")
 	}
-	if !flags.ReplaceConsts {
+	if !options.ReplaceConsts {
 		raw = append(raw, "--no-replace-consts")
 	}
-	if flags.RespectBytecodeAccessModifiers {
+	if options.RespectBytecodeAccessModifiers {
 		raw = append(raw, "--respect-bytecode-access-modifiers")
 	}
 	return

@@ -31,7 +31,7 @@ var (
 	logger = log.New(os.Stdout, "[admh] ", log.LstdFlags)
 )
 
-func DownloadAndExtractAPK(packageName string, version int, workDir, output string, jadxFlags *JadxFlags, resolveDownloadUrl DownloadUrlResolver) error {
+func DownloadAndExtractAPK(packageName string, version int, workDir, output string, jadxOptions *JadxOptions, resolveDownloadUrl DownloadUrlResolver) error {
 	versionStr := strconv.Itoa(version)
 	apkDir := filepath.Join(workDir, "apk")
 	apkFile := filepath.Join(apkDir, packageName+"-"+versionStr+".apk")
@@ -59,13 +59,13 @@ func DownloadAndExtractAPK(packageName string, version int, workDir, output stri
 		file.Close()
 	}
 
-	return ExtractAPK(apkFile, workDir, output, jadxFlags)
+	return ExtractAPK(apkFile, workDir, output, jadxOptions)
 }
 
 //goland:noinspection GoBoolExpressions
-func ExtractAPK(apkFile, workDir, output string, jadxFlags *JadxFlags) error {
+func ExtractAPK(apkFile, workDir, output string, jadxOptions *JadxOptions) error {
 	jadxPath := filepath.Join(workDir, "jadx", "bin", "jadx")
-	DownloadJADX(workDir, jadxPath)
+	DownloadJADX(workDir, jadxPath, jadxOptions.JadxRelease)
 
 	if DebugLogs {
 		logger.Println("Deleting old app dir")
@@ -77,7 +77,7 @@ func ExtractAPK(apkFile, workDir, output string, jadxFlags *JadxFlags) error {
 	cmd := exec.Command(
 		jadxPath,
 		append(
-			jadxFlags.GetRawFlags(),
+			jadxOptions.GetRawFlags(),
 			"--fs-case-sensitive",
 			"-d", output,
 			apkFile,
@@ -98,7 +98,7 @@ func Push(dir, versionName, versionCode string) (err error) {
 	return execCmd(dir, "git", "push")
 }
 
-func DownloadJADX(workDir, jadxPath string) (err error) {
+func DownloadJADX(workDir, jadxPath, jadxRelease string) (err error) {
 	if _, err = os.Stat(jadxPath); err == nil {
 		return
 	}
@@ -107,7 +107,7 @@ func DownloadJADX(workDir, jadxPath string) (err error) {
 	if DebugLogs {
 		logger.Println("Downloading jadx")
 	}
-	resp, err := http.Get("https://github.com/Juby210/jadx/releases/download/v1.2.0.82-fork1/jadx-1.2.0.82-fork1.zip")
+	resp, err := http.Get(jadxRelease)
 	if err != nil {
 		return
 	}
